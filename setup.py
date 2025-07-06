@@ -72,10 +72,11 @@ compute_capabilities = set()
 device_count = torch.cuda.device_count()
 for i in range(device_count):
     major, minor = torch.cuda.get_device_capability(i)
-    if major < 8:
+    if (major < 7) or (major == 7 and minor < 5):
         warnings.warn(f"skipping GPU {i} with compute capability {major}.{minor}")
         continue
     compute_capabilities.add(f"{major}.{minor}")
+
 
 nvcc_cuda_version = get_nvcc_cuda_version(CUDA_HOME)
 if not compute_capabilities:
