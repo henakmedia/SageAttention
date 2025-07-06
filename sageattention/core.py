@@ -25,6 +25,11 @@ from .triton.attn_qk_int8_block_varlen import forward as attn_false_varlen
 from .triton.attn_qk_int8_per_block_causal_varlen import forward as attn_true_varlen
 
 from .triton.quant_per_thread import per_thread_int8 as per_thread_int8_triton
+try:
+    from . import _qattn_sm75
+    SM75_ENABLED = True
+except:
+    SM75_ENABLED = False
 
 try:
     from . import _qattn_sm80

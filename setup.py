@@ -100,8 +100,9 @@ if nvcc_cuda_version < Version("12.8") and any(cc.startswith("12.0") for cc in c
 # Add target compute capabilities to NVCC flags.
 for capability in compute_capabilities:
     if capability.startswith("7.5"):
-        HAS_SM75 = True
-        num = "75"
+        HAS_SM75 = False
+        HAS_SM80 = True
+        num = "80"
     elif capability.startswith("8.0"):
         HAS_SM80 = True
         num = "80"
