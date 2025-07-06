@@ -24,6 +24,7 @@ from setuptools import setup, find_packages
 import torch
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CUDA_HOME
 
+HAS_SM75 = False
 HAS_SM80 = False
 HAS_SM86 = False
 HAS_SM89 = False
@@ -97,7 +98,10 @@ if nvcc_cuda_version < Version("12.8") and any(cc.startswith("12.0") for cc in c
 
 # Add target compute capabilities to NVCC flags.
 for capability in compute_capabilities:
-    if capability.startswith("8.0"):
+    if capability.startswith("7.5"):
+        HAS_SM75 = True
+        num = "75"
+    elif capability.startswith("8.0"):
         HAS_SM80 = True
         num = "80"
     elif capability.startswith("8.6"):
@@ -117,6 +121,19 @@ for capability in compute_capabilities:
         NVCC_FLAGS += ["-gencode", f"arch=compute_{num},code=compute_{num}"]
 
 ext_modules = []
+if HAS_SM75:
+    qattn_extension = CUDAExtension(
+        name="sageattention._qattn_sm75",
+        sources=[
+            "csrc/qattn/pybind_sm75.cpp",  # you’ll likely need to duplicate/adapt from sm80
+            "csrc/qattn/qk_int_sv_f16_cuda_sm75.cu",
+        ],
+        extra_compile_args={
+            "cxx": CXX_FLAGS,
+            "nvcc": NVCC_FLAGS,
+        },
+    )
+    ext_modules.append(qattn_extension)
 
 if HAS_SM80 or HAS_SM86 or HAS_SM89 or HAS_SM90 or HAS_SM120:
     qattn_extension = CUDAExtension(
